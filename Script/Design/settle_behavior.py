@@ -191,17 +191,18 @@ def handle_settle_behavior(character_id: int, now_time: datetime.datetime, event
             resort_state_list.sort(key=lambda sid: game_config.config_character_state[sid].type)
             # 遍历排序后的状态列表进行输出
             for status_id in resort_state_list:
+                state_cfg = game_config.config_character_state[status_id]  # 缓存字典查找，避免同一status_id重复访问
                 # 获取状态对应的富文本颜色
                 color_text = rich_text.get_chara_state_rich_color(status_id)
                 now_text += f"\n  <{color_text}>"
-                state_name = game_config.config_character_state[status_id].name
+                state_name = state_cfg.name
                 # 快感则增加快感文字
-                if game_config.config_character_state[status_id].type == 0:
+                if state_cfg.type == 0:
                     state_name += _("快感")
                 # 补全对齐
                 state_name = f"{state_name.ljust(6,'　')}"
                 now_text += (
-                    state_name + 
+                    state_name +
                     attr_text.get_value_text(int(change_data.status_data[status_id]))
                 )
                 # 获取新旧状态等级
@@ -306,17 +307,18 @@ def handle_settle_behavior(character_id: int, now_time: datetime.datetime, event
                     resort_state_list.sort(key=lambda sid: game_config.config_character_state[sid].type)
                     # 遍历排序后的状态列表进行输出
                     for status_id in resort_state_list:
+                        state_cfg = game_config.config_character_state[status_id]  # 缓存字典查找，避免同一status_id重复访问
                         # 获取状态对应的富文本颜色
                         color_text = rich_text.get_chara_state_rich_color(status_id)
                         now_text += f"\n  <{color_text}>"
-                        state_name = game_config.config_character_state[status_id].name
+                        state_name = state_cfg.name
                         # 快感则增加快感文字
-                        if game_config.config_character_state[status_id].type == 0:
+                        if state_cfg.type == 0:
                             state_name += _("快感")
                         # 补全对齐
                         state_name = f"{state_name.ljust(6,'　')}"
                         now_text += (
-                            state_name + 
+                            state_name +
                             text_handle.number_to_symbol_string(int(target_change.status_data[status_id]))
                         )
                         # 获取新旧状态等级
