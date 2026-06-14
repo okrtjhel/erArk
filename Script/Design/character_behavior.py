@@ -63,11 +63,12 @@ def init_character_behavior():
         field_commission_function.update_field_commission() # 刷新委托任务
         id_list = cache.npc_id_got.copy()
         id_list.discard(0)
+        npc_count = len(id_list)  # 本轮NPC数量，迭代期间id_list不变，外提避免重复计算
         # 后结算其他NPC部分
         # now_time = datetime.datetime.now()
         # print(f"开始循环NPC部分: {now_time}")
-        while len(cache.over_behavior_character) <= len(id_list):
-            # print(f"debug 还差{len(id_list) - len(cache.over_behavior_character)}个NPC结算")
+        while len(cache.over_behavior_character) <= npc_count:
+            # print(f"debug 还差{npc_count - len(cache.over_behavior_character)}个NPC结算")
             for character_id in id_list:
                 if character_id in cache.over_behavior_character:
                     continue
@@ -83,7 +84,7 @@ def init_character_behavior():
             cache.pl_sleep_save_flag = False
             sleep_settle.update_save()
         # 结束循环
-        if len(cache.over_behavior_character) >= len(id_list) + 1:
+        if len(cache.over_behavior_character) >= npc_count + 1:
             break
     # 结算成就
     achievement_panel.achievement_flow(_("时停"))

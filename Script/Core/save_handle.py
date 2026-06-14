@@ -298,6 +298,8 @@ def input_load_save(save_id: str):
             loaded_dict["rhodes_island"].facility_level[all_cid] = 1
             update_count += 1
     # 更新罗德岛的设施开启状态
+    # 预建 adv_id 索引，将 O(设施×NPC) 的巢状扫描降为 O(设施+NPC)
+    got_adv_set = {loaded_dict["character_data"][cid].adv for cid in loaded_dict["npc_id_got"]}
     for all_cid in game_config.config_facility_open:
         # 没有记录的设施改为初始关闭
         if all_cid not in loaded_dict["rhodes_island"].facility_open:
@@ -305,11 +307,8 @@ def input_load_save(save_id: str):
         # 已关闭的查询是否可以被已有角色开启
         if loaded_dict["rhodes_island"].facility_open[all_cid] == False:
             if game_config.config_facility_open[all_cid].NPC_id != 0:
-                for chara_cid in loaded_dict["npc_id_got"]:
-                    character_data = loaded_dict["character_data"][chara_cid]
-                    if character_data.adv == game_config.config_facility_open[all_cid].NPC_id:
-                        loaded_dict["rhodes_island"].facility_open[all_cid] = True
-                        break
+                if game_config.config_facility_open[all_cid].NPC_id in got_adv_set:
+                    loaded_dict["rhodes_island"].facility_open[all_cid] = True
     # 更新食谱
     loaded_dict["recipe_data"] = cooking.init_recipes()
     # 更新图书借阅

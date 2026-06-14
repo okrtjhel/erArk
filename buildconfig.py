@@ -71,12 +71,9 @@ try:
         with open(character_event_data_path, "r", encoding="utf-8") as f:
             character_event_data = json.load(f)
         # 如果指定了特定角色，则将该角色重置
-        for key in character_talk_data["Talk"]["data"].copy():
-            if key["adv_id"] == BUILD_CHARA_ID:
-                character_talk_data["Talk"]["data"].remove(key)
-        for key in character_event_data["Event"]["data"].copy():
-            if key["adv_id"] == BUILD_CHARA_ID:
-                character_event_data["Event"]["data"].remove(key)
+        # 原寫法：對已複製列表逐一 .remove()（O(n²)）；改為列表推導重建，結果等價且更高效
+        character_talk_data["Talk"]["data"] = [key for key in character_talk_data["Talk"]["data"] if key["adv_id"] != BUILD_CHARA_ID]
+        character_event_data["Event"]["data"] = [key for key in character_event_data["Event"]["data"] if key["adv_id"] != BUILD_CHARA_ID]
 except:
     character_talk_data = {}
 

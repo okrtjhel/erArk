@@ -333,32 +333,34 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
             return 0
 
     # 进行数值B的判别,A能力,T素质,Time时间,J宝珠,E经验,S状态,F好感度,Flag作者用flag,X信赖,G攻略程度,Instruct指令,Son子嵌套事件,OtherChara其他角色在场,Dirty污浊,Bondage绳子捆绑,Roleplay角色扮演,PenisPos阴茎位置,ShootPos射精位置,Relationship身份关系
+    # 提取 premise_all_value_list[1] 为局部变量，避免在函数内多次重复索引（约30次引用）
+    b1 = premise_all_value_list[1]
     if (
-        len(premise_all_value_list[1]) > 1 and
-        "Time" not in premise_all_value_list[1] and
-        "Dirty" not in premise_all_value_list[1] and
-        "PenisPos" not in premise_all_value_list[1] and
-        "ShootPos" not in premise_all_value_list[1] and
-        "Relationship" not in premise_all_value_list[1] and
-        "Instruct" not in premise_all_value_list[1]
+        len(b1) > 1 and
+        "Time" not in b1 and
+        "Dirty" not in b1 and
+        "PenisPos" not in b1 and
+        "ShootPos" not in b1 and
+        "Relationship" not in b1 and
+        "Instruct" not in b1
         ):
-        type_son_id = int(premise_all_value_list[1].split("|")[1])
-    if "Son" in premise_all_value_list[1]:
+        type_son_id = int(b1.split("|")[1])
+    if "Son" in b1:
         return 0
-    if premise_all_value_list[1][0] == "A":
+    if b1[0] == "A":
         final_value = final_character_data.ability.get(type_son_id, 0)
-    elif premise_all_value_list[1][0] == "T":
-        if "Time" in premise_all_value_list[1]:
+    elif b1[0] == "T":
+        if "Time" in b1:
             final_value = final_character_data.behavior.start_time.hour
         else:
             final_value = final_character_data.talent.get(type_son_id, 0)
-    elif premise_all_value_list[1][0] == "J":
+    elif b1[0] == "J":
         final_value = final_character_data.juel.get(type_son_id, 0)
-    elif premise_all_value_list[1][0] == "E":
+    elif b1[0] == "E":
         final_value = final_character_data.experience.get(type_son_id, 0)
-    elif premise_all_value_list[1][0] == "S":
-        if "ShootPos" in premise_all_value_list[1]:
-            b2_value = premise_all_value_list[1].split("ShootPos|")[1]
+    elif b1[0] == "S":
+        if "ShootPos" in b1:
+            b2_value = b1.split("ShootPos|")[1]
             part_type = b2_value[0]
             part_cid = int(b2_value[1:])
             # 区分是身体还是服装
@@ -371,17 +373,17 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
             return 0
         else:
             final_value = final_character_data.status_data.get(type_son_id, 0)
-    elif premise_all_value_list[1][0] == "F":
-        if "Flag" in premise_all_value_list[1]:
+    elif b1[0] == "F":
+        if "Flag" in b1:
             final_character_data.author_flag.chara_int_flag_dict.setdefault(type_son_id, 0)
             final_value = final_character_data.author_flag.chara_int_flag_dict[type_son_id]
         else:
             final_value = final_character_data.favorability[0]
-    elif premise_all_value_list[1][0] == "X":
+    elif b1[0] == "X":
         final_value = final_character_data.trust
-    elif premise_all_value_list[1][0] == "D":
-        if "Dirty" in premise_all_value_list[1]:
-            b2_value = premise_all_value_list[1].split("Dirty|")[1]
+    elif b1[0] == "D":
+        if "Dirty" in b1:
+            b2_value = b1.split("Dirty|")[1]
             part_type = b2_value[0]
             part_cid = int(b2_value[1:])
             # 区分是身体还是服装
@@ -389,28 +391,28 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
                 final_value = final_character_data.dirty.body_semen[part_cid][1]
             else:
                 final_value = final_character_data.dirty.cloth_semen[part_cid][1]
-    elif premise_all_value_list[1][0] == "G":
+    elif b1[0] == "G":
         # 礼物前提
-        if "Gift" in premise_all_value_list[1]:
+        if "Gift" in b1:
             if final_character_data.behavior.gift_id == type_son_id:
                 return 1
             else:
                 return 0
         final_value = attr_calculation.get_character_fall_level(final_character_id, minus_flag=True)
-    elif premise_all_value_list[1][0] == "B":
-        if "Bondage" in premise_all_value_list[1]:
+    elif b1[0] == "B":
+        if "Bondage" in b1:
             if final_character_data.h_state.bondage == type_son_id:
                 final_value = 1
             else:
                 final_value = 0
-    elif premise_all_value_list[1][0] == "R":
-        if "Roleplay" in premise_all_value_list[1]:
+    elif b1[0] == "R":
+        if "Roleplay" in b1:
             if type_son_id in final_character_data.hypnosis.roleplay:
                 final_value = 1
             else:
                 final_value = 0
-        elif "Relationship" in premise_all_value_list[1]:
-            target_character_type = premise_all_value_list[1].split("|")[1]
+        elif "Relationship" in b1:
+            target_character_type = b1.split("|")[1]
             if target_character_type == "是玩家的":
                 target_character_data = cache.character_data[0]
             elif target_character_type == "是自己的":
@@ -429,9 +431,9 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
             elif relation_type == "女儿":
                 return final_character_id in target_character_data.relationship.child_id_list
 
-    elif premise_all_value_list[1][0] == "P":
-        if "PenisPos" in premise_all_value_list[1]:
-            b2_value = premise_all_value_list[1].split("PenisPos|")[1]
+    elif b1[0] == "P":
+        if "PenisPos" in b1:
+            b2_value = b1.split("PenisPos|")[1]
             part_type = b2_value[0]
             part_cid = int(b2_value[1:])
             # 区分是身体还是服装
@@ -444,8 +446,8 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
             return 0
 
     # 前指令的单独计算
-    elif premise_all_value_list[1][0] == "I":
-        if "Instruct" in premise_all_value_list[1]:
+    elif b1[0] == "I":
+        if "Instruct" in b1:
             len_pre_behavior = len(cache.pl_pre_behavior_instruce)
             behavior_id_str = "_".join(premise_all_value_list[1:-2])
             premise_all_value_list[1] = behavior_id_str
@@ -477,7 +479,7 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
     # print(f"debug final_value = {final_value}, judge_value = {judge_value}")
 
     # 攻略程度的不过0处理
-    if premise_all_value_list[1][0] == "G":
+    if b1[0] == "G":
         # 如果当前值与判定值的正负号不同，则直接返回0
         if (final_value > 0 and judge_value < 0) or (final_value < 0 and judge_value > 0):
             return 0
@@ -490,8 +492,8 @@ def handle_comprehensive_value_premise(character_id: int, premise_all_value_list
 
 
     # 其他角色在场的判定
-    if premise_all_value_list[1][0] == "O":
-        if "OtherChara" in premise_all_value_list[1]:
+    if b1[0] == "O":
+        if "OtherChara" in b1:
             if character_data.position == final_character_data.position:
                 return 1 if judge_value >= 1 else 0
             else:
